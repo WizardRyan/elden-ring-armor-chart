@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Elden Ring Armor Chart</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+        <style>
+            html{
+                width: 100%;
+                height: 100%;
+            }
+            body{
+                width: 100%;
+                height: 100%;
+                margin:0;
+                padding:0;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            .main-wrapper{
+                display: flex;
+                width: 100%;
+                height: 100%;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .tick{
+                font-size: 16px;
+            }
+            
+            #graphic-container{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #y-axis-label{
+                transform: rotate(270deg);
+                margin-right: 1500px;
+                padding: 0;
+                position: absolute;
+                font-weight: bold;
+            }
+
+            #x-axis-label{
+                margin-bottom: 30px;
+                font-weight: bold;
+            }
+
+            svg{
+                margin-left: 0px;
+            }
+
+            #legend-div{
+                margin-top: 20px;
+            }
+
+            #legend-div span{
+                margin-right: 10px;
+            }
+
+            #input-div{
+                display: flex;
+                /* flex-direction: column; */
+                /* height: 40px; */
+                width: 600px;
+                justify-content: space-between;
+            }
+
+            .x-select{
+                margin-bottom: 10px;;
+            }
+
+            /* .tooltip{
+                display: flex;
+            } */
+
+            .input-pair{
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .tooltip-info{
+                display: flex;
+                flex-direction: column;
+                width: 100px;
+            }
+            
+        </style>
+
+        <script src="d3.v7.js"></script>
+        <script type="module">
+
+            let data = await d3.csv("./data/armors.csv"); 
+            console.log('freshly read in data:');
+            
+            let axisOptions = ['Phy','Strike','Slash','Pierce','Magic','Fire','Ligt','Holy', "weight", 'Immunity','Robustness','Focus','Vitality','Poise'];
+            //column on the left
+            let infoOptions = ['name', 'Phy','Strike','Slash','Pierce','Magic','Fire','Ligt','Holy', "weight", 'Immunity','Robustness','Focus','Vitality','Poise'];
+            let infoElements = [];
+            
+            //"Gauntlet" may be for an outlier or invalid point, need to investigate"
+            let armorTypes = ["All", "Chest Armor", "Leg Armor", "Gauntlets", "Helm", "Gauntlet"];
+                        
+            const graphicContainer = document.getElementById("graphic-container");
+            const yAxisContainer = document.getElementById("y-axis-container");
+            const inputDiv = document.getElementById("input-div");
+            
+            //dropdowns for each axis
+            const populateAxisDropdown = (selectElement) => {
+                    for(const option of axisOptions){
+                    let optionText = option;
+                    if(option == "Ligt") optionText = "Lightning";
+                    if(option == "Phy") optionText = "Physical";
+                    if(option == "weight") optionText = "Weight";
+                    const optionElement = document.createElement("option");
+                    optionElement.value = option;
+                    optionElement.innerText = optionText;
+                    selectElement.appendChild(optionElement);
+                }
+            }
+
+            const xSelect = document.createElement("select");
+            xSelect.setAttribute("class", "x-select");
+            const ySelect = document.createElement("select");
+            populateAxisDropdown(xSelect);
+            populateAxisDropdown(ySelect);
+
+            const addDropDown = (element, text) => {
+                const container = document.createElement("div");
+                container.setAttribute("class", "input-pair");
+                const label = document.createElement("span");
+                label.innerText = text;
+                container.appendChild(label);
+                container.appendChild(element);
+                inputDiv.appendChild(container);
+            }
+
+            addDropDown(xSelect, "X axis: ");
+            addDropDown(ySelect, "Y axis: ");
+
+            //display armor details
+            const toolTipInfo = document.createElement("div");
+            toolTipInfo.setAttribute("class", "tooltip-info");
+            yAxisContainer.appendChild(toolTipInfo);
+
+            for(const prop of infoOptions){
+                let propElement = document.createElement("p");
+                propElement.id = `propId${prop}`;
+                propElement.innerText = `${prop}: `;
+                toolTipInfo.appendChild(propElement);
+                infoElements.push(propElement);
+            }
+
+            //be able to filter armor types
+            const armorTypeDiv = document.createElement("div");
+            armorTypeDiv.id = "armor-type-div";
+            const armorTypeSpan = document.createElement("span");
+            armorTypeSpan.innerText = "Filter Armor Types: ";
+            const armorTypeSelect = document.createElement("select");
+            for(const option of armorTypes){
+                const optionElement = document.createElement("option");
+                optionElement.value = option;
+                optionElement.innerText = option;
+                armorTypeSelect.appendChild(optionElement);
+            }
+            armorTypeDiv.appendChild(armorTypeSpan);
+            armorTypeDiv.appendChild(armorTypeSelect)
+            inputDiv.appendChild(armorTypeDiv);
+            
+            //parse data to usable formats
+            for(const row of data){
+                row.dmgNegation = row.dmgNegation.replace(/'/g, `"`);
+                row.dmgNegation = JSON.parse(row.dmgNegation);
+                row.resistance = row.resistance.replace(/'/g, `"`);
+                row.resistance = JSON.parse(row.resistance);
+                row.weight = parseFloat(row.weight)
+                for(const property of axisOptions.filter(o => o != "weight")){
+                    try{
+                        row[property] = row.dmgNegation.find((o) => o.name == property).amount;
+                    }
+                    catch(err){
+                        try{
+                            row[property] = row.resistance.find(o => o.name == property).amount;
+                        }
+                        catch(err){
+                            row[property] = 0;
+                        }
+                    }
+                }
+                try{
+                    row.image = row.image.replace("https://eldenring.fanapis.com/images/armors/", "data/armorImages/");
+                }
+                catch(err){
+                    
+                }
+            }
+            console.log(data);           
+
+            const fullData = Array.from(data);
+            
+            //set the dimensions and margins of the graph
+            const margin = {top: 30, right: 30, bottom: 70, left: 100},
+                width = 1600 - margin.left - margin.right,
+                height = 800 - margin.top - margin.bottom;
+
+            //append the svg object to the body of the page
+            const svg = d3.select("#graphic-container")
+            .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            //give some space for y margin
+            .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // X axis
+            const x = d3.scaleLinear()
+            .range([0, width ]);            
+            //make sure the text is below the x axis by appending to a translated group
+            const xAxis = svg.append("g")
+            .attr("transform", `translate(0, ${height})`);
+
+            //Add Y axis
+            const y = d3.scaleLinear()
+            .range([ height, 0]);
+
+            const yAxis = svg.append("g").attr("class", "y-axis");
+
+            let tooltipSpan = document.createElement("div");
+            tooltipSpan.style.display = "none";
+            tooltipSpan.setAttribute("class", "tooltip");
+            document.body.appendChild(tooltipSpan);
+
+            let tooltipImage = document.createElement("img");
+            tooltipImage.onmouseout = () => {
+                // console.log(`move out of image`);
+                tooltipSpan.style.display = "none";
+                for(const prop in axisOptions){
+                    try{
+                        let el = document.getElementById(`propId${prop}`);
+                        el.innerHTML = `${prop}: 0`;
+                    }
+                    catch(err){
+
+                    }
+                }
+            }
+            tooltipImage.setAttribute("src", "./data/armorImages/image.svg");
+            tooltipSpan.appendChild(tooltipImage);
+
+            const updateChart = (xVal, yVal) => {
+
+                let medianX = d3.median(data, d => d[xVal]);
+                
+                // Update the X axis
+                x.domain(d3.extent(data, d => d[xVal]));
+                xAxis
+                .transition()
+                .duration(1000)
+                .call(d3.axisBottom(x))
+                
+                let xMedianLoc = x(medianX);
+                svg.append("rect")
+                .attr("x", xMedianLoc)
+                .attr("y", margin.top)
+                .attr("width", "1px")
+                .attr("height", height)
+                .attr("class", "median-gizmo")
+                .attr("fill", "rgba(1, 1, 1, 0.5)");
+
+                svg.append("text")
+                .attr("x", xMedianLoc)
+                .attr("y", margin.top + height + 15)
+                .attr("class", "median-gizmo")
+                .text(`Median`);
+
+                // Update the Y axis
+                let medianY = d3.median(data, d => d[yVal]);
+                y.domain(d3.extent(data, d => d[yVal]));
+                yAxis.call(d3.axisLeft(y));
+
+                let yMedianLoc = y(medianY);
+                svg.append("rect")
+                .attr("x", 0)
+                .attr("y", yMedianLoc)
+                .attr("width", width)
+                .attr("height", "1px")
+                .attr("class", "median-gizmo")
+                .attr("fill", "rgba(1, 1, 1, 0.5)");
+
+                svg.append("text")
+                .attr("x", -90)
+                .attr("y", yMedianLoc)
+                .attr("class", "median-gizmo")
+                .text(`Median`);
+
+                let imageDimensions = 20;
+                let imageWidth = imageDimensions;
+                let imageHeight = imageDimensions;
+
+                //placeholder dot in case image doesn't render
+                svg.selectAll(".dot")
+                .data(data)
+                .join("circle")
+                .attr("class","dot")
+                .transition()
+                .duration(1000)
+                .attr("cx", d => x(d[xVal]))
+                .attr("cy", d => y(d[yVal]))
+                .attr("r", 4)
+                .attr("fill", "#2f41b5");
+
+                svg.selectAll("image")
+                .data(data)
+                .join("svg:image")
+                .attr("class",".armor-image")
+                .transition()
+                .duration(1000)
+                .attr("x", d => x(d[xVal]) - imageWidth /2)
+                .attr("y", d => y(d[yVal]) - imageHeight /2)
+                .attr("width", imageWidth)
+                .attr("height", imageHeight)
+                .attr("href", d => d.image)
+                .attr("alt", "image.svg");
+
+                //set hover zone
+                svg.selectAll(".dotHover")
+                .data(data)
+                .join("circle")
+                .on("mouseenter", (e, d) => {
+                    const x = e.clientX,
+                        y = e.clientY;
+                    tooltipSpan.style.display ="block";
+                    tooltipSpan.style.position = "fixed";
+                    tooltipSpan.style.overflow = "hidden";
+                    tooltipSpan.style.top = (y - 40) + 'px';
+                    tooltipSpan.style.left = (x - 40) + 'px';
+                    // tooltipSpan.style.backgroundColor = "black";
+                    tooltipSpan.style.borderRadius = "3px";
+                    tooltipSpan.style.padding = "5px";
+                    tooltipImage.setAttribute("src", d.image);
+                    console.log('moved');
+                    for(const prop of infoOptions){
+                        const el = document.getElementById(`propId${prop}`);
+                        el.innerHTML = `${prop}: <b>${d[prop]}</b>`;
+                    }
+                })
+                // .on("mouseout", () => {
+                //     tooltipSpan.style.display = "none";
+                // })
+                .attr("class","dotHover")
+                .attr("cx", d => x(d[xVal]))
+                .attr("cy", d => y(d[yVal]))
+                .attr("r", 8)
+                .attr("fill", "rgba(0, 0, 0, 0)");
+
+            }
+
+            let genericChange = () => {
+                svg.selectAll(".median-gizmo").remove();
+                updateChart(xSelect.value, ySelect.value);
+            }
+
+            ySelect.onchange = genericChange;
+            xSelect.onchange = genericChange;
+
+            ySelect.value = "Phy";
+            xSelect.value = "weight";
+            armorTypeSelect.onchange = () => {
+                data = (armorTypeSelect.value == "All") ? fullData : fullData.filter(d => d.category == armorTypeSelect.value);
+                svg.selectAll("image").remove();
+                svg.selectAll(".dotHover").remove();
+                svg.selectAll(".dot").remove();
+
+                genericChange();
+            };
+
+            updateChart("weight", ySelect.value);
+
+            const yAxisTxt = document.getElementById("y-axis-label");
+            const xAxisTxt = document.getElementById("x-axis-label");
+        </script>
+    </head>
+    <body>
+        <div class="main-wrapper">
+            <div id="graphic-container">
+                <div id="y-axis-container">
+                </div>
+            </div>
+            <div id="input-div">
+            </div>
+        </div>
+    </body>
+</html>
