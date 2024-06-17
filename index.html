@@ -248,6 +248,7 @@
                 }
             }
             tooltipImage.setAttribute("src", "./data/armorImages/image.svg");
+            tooltipImage.style.maxWidth = "200px";
             tooltipSpan.appendChild(tooltipImage);
 
             const updateChart = (xVal, yVal) => {
@@ -330,26 +331,60 @@
                 .data(data)
                 .join("circle")
                 .on("mouseenter", (e, d) => {
+
+                    //original code
+                    // const x = e.clientX,
+                    //     y = e.clientY;
+                    // tooltipSpan.style.display ="block";
+                    // tooltipSpan.style.position = "fixed";
+                    // tooltipSpan.style.overflow = "hidden";
+                    // tooltipSpan.style.top = (y - 40) + 'px';
+                    // tooltipSpan.style.left = (x - 40) + 'px';
+                    // // tooltipSpan.style.backgroundColor = "black";
+                    // tooltipSpan.style.borderRadius = "3px";
+                    // tooltipSpan.style.padding = "5px";
+                    // tooltipImage.setAttribute("src", d.image);
+                    // console.log('moved');
+                    // for(const prop of infoOptions){
+                    //     const el = document.getElementById(`propId${prop}`);
+                    //     el.innerHTML = `${prop}: <b>${d[prop]}</b>`;
+                    // }
+
+                    const sameX = data.filter(other => other[xVal] === d[xVal]);
+                    const sameY = data.filter(other => other[yVal] === d[yVal]);
+                    const allAtPoint = sameX.filter(other => sameY.includes(other));
+
                     const x = e.clientX,
-                        y = e.clientY;
-                    tooltipSpan.style.display ="block";
+                          y = e.clientY;
+                    tooltipSpan.style.display = "flex";
                     tooltipSpan.style.position = "fixed";
-                    tooltipSpan.style.overflow = "hidden";
                     tooltipSpan.style.top = (y - 40) + 'px';
-                    tooltipSpan.style.left = (x - 40) + 'px';
-                    // tooltipSpan.style.backgroundColor = "black";
-                    tooltipSpan.style.borderRadius = "3px";
-                    tooltipSpan.style.padding = "5px";
-                    tooltipImage.setAttribute("src", d.image);
-                    console.log('moved');
-                    for(const prop of infoOptions){
-                        const el = document.getElementById(`propId${prop}`);
-                        el.innerHTML = `${prop}: <b>${d[prop]}</b>`;
-                    }
+                    tooltipSpan.style.left = (x + 20) + 'px'; // Adjust offset
+
+                    // Clear previous content
+                    tooltipSpan.innerHTML = "";
+
+                    allAtPoint.forEach(item => {
+                        const armorSummary = document.createElement('div');
+                        armorSummary.style.paddingRight = "15px";
+                        armorSummary.style.backgroundColor = "white";
+                        const itemImage = armorSummary.appendChild(tooltipImage.cloneNode(false));
+                        // const itemImage = tooltipSpan.appendChild(tooltipImage.cloneNode(false));
+                        itemImage.setAttribute("src", item.image);
+                        itemImage.style.margin = "2px";
+
+                        for (const prop of infoOptions) {
+                            const el = document.createElement("p");
+                            el.innerHTML = `${prop}: <b>${item[prop]}</b>`;
+                            armorSummary.appendChild(el);
+                        }
+                        tooltipSpan.appendChild(armorSummary);
+                    });
+
                 })
-                // .on("mouseout", () => {
-                //     tooltipSpan.style.display = "none";
-                // })
+                .on("mouseout", () => {
+                    tooltipSpan.style.display = "none";
+                })
                 .attr("class","dotHover")
                 .attr("cx", d => x(d[xVal]))
                 .attr("cy", d => y(d[yVal]))
