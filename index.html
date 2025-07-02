@@ -15,25 +15,37 @@
                 height: 100%;
                 margin:0;
                 padding:0;
-                font-family: Arial, Helvetica, sans-serif;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: rgb(255, 255, 255);
+                color: #333;
             }
 
             .main-wrapper{
                 display: flex;
                 width: 100%;
-                height: 100%;
+                min-height: 100vh;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
+                padding: 20px;
+                box-sizing: border-box;
             }
+            
             .tick{
-                font-size: 16px;
+                font-size: 14px;
             }
             
             #graphic-container{
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                margin-bottom: 20px;
+                max-width: 95vw;
+                overflow: hidden;
             }
 
             #y-axis-label{
@@ -51,6 +63,8 @@
 
             svg{
                 margin-left: 0px;
+                max-width: 100%;
+                height: auto;
             }
 
             #legend-div{
@@ -63,29 +77,166 @@
 
             #input-div{
                 display: flex;
-                /* flex-direction: column; */
-                /* height: 40px; */
-                width: 600px;
-                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+                align-items: center;
+                background: rgba(255, 255, 255, 0.95);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+                max-width: 95vw;
+                box-sizing: border-box;
             }
-
-            .x-select{
-                margin-bottom: 10px;;
-            }
-
-            /* .tooltip{
-                display: flex;
-            } */
 
             .input-pair{
                 display: flex;
-                justify-content: space-between;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                min-width: 150px;
+            }
+
+            .input-pair span{
+                font-weight: 600;
+                color: #272727;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            select{
+                padding: 10px 15px;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                background: white;
+                font-size: 14px;
+                font-weight: 500;
+                color: #333;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                min-width: 120px;
+            }
+
+            select:hover{
+                border-color: #667eea;
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+            }
+
+            select:focus{
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+            #armor-type-div{
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                min-width: 150px;
+            }
+
+            #armor-type-div span{
+                font-weight: 600;
+                color: #272727;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .tooltip{
+                position: fixed;
+                background: white;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                overflow-y: auto;
+                overflow-x: auto;
+                display: none;
+                padding: 10px;
+                pointer-events: none;
+            }
+
+            .tooltip::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            .tooltip::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 4px;
+            }
+
+            .tooltip::-webkit-scrollbar-thumb {
+                background: #667eea;
+                border-radius: 4px;
+            }
+
+            .tooltip::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+
+            .armor-summary{
+                padding: 10px;
+                margin: 5px;
+                background: #f9f9f9;
+                border-radius: 6px;
+                border-left: 4px solid #667eea;
+                min-width: 200px;
+            }
+
+            .armor-summary img{
+                display: block;
+                margin: 0 auto 10px auto;
+                border-radius: 4px;
+            }
+
+            .armor-summary p{
+                margin: 4px 0;
+                font-size: 13px;
+                line-height: 1.4;
             }
 
             .tooltip-info{
                 display: flex;
                 flex-direction: column;
                 width: 100px;
+            }
+
+            /* Responsive adjustments */
+            @media screen and (max-width: 1400px) {
+                #graphic-container {
+                    padding: 15px;
+                }
+                
+                svg {
+                    width: 100%;
+                    max-width: 1200px;
+                }
+            }
+
+            @media screen and (max-height: 900px) {
+                .main-wrapper {
+                    min-height: auto;
+                    padding: 10px;
+                }
+                
+                #graphic-container {
+                    margin-bottom: 15px;
+                }
+            }
+
+            @media screen and (max-width: 768px) {
+                #input-div {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                
+                .input-pair {
+                    min-width: 200px;
+                }
             }
             
         </style>
@@ -138,27 +289,14 @@
                 inputDiv.appendChild(container);
             }
 
-            addDropDown(xSelect, "X axis: ");
-            addDropDown(ySelect, "Y axis: ");
-
-            //display armor details
-            const toolTipInfo = document.createElement("div");
-            toolTipInfo.setAttribute("class", "tooltip-info");
-            yAxisContainer.appendChild(toolTipInfo);
-
-            for(const prop of infoOptions){
-                let propElement = document.createElement("p");
-                propElement.id = `propId${prop}`;
-                propElement.innerText = `${prop}: `;
-                toolTipInfo.appendChild(propElement);
-                infoElements.push(propElement);
-            }
+            addDropDown(xSelect, "X axis:");
+            addDropDown(ySelect, "Y axis:");
 
             //be able to filter armor types
             const armorTypeDiv = document.createElement("div");
             armorTypeDiv.id = "armor-type-div";
             const armorTypeSpan = document.createElement("span");
-            armorTypeSpan.innerText = "Filter Armor Types: ";
+            armorTypeSpan.innerText = "Filter Armor Types:";
             const armorTypeSelect = document.createElement("select");
             for(const option of armorTypes){
                 const optionElement = document.createElement("option");
@@ -191,6 +329,7 @@
                     }
                 }
                 try{
+                    // replace images with local data if possible
                     row.image = row.image.replace("https://eldenring.fanapis.com/images/armors/", "data/armorImages/");
                 }
                 catch(err){
@@ -201,10 +340,39 @@
 
             const fullData = Array.from(data);
             
-            //set the dimensions and margins of the graph
-            const margin = {top: 30, right: 30, bottom: 70, left: 100},
-                width = 1600 - margin.left - margin.right,
-                height = 800 - margin.top - margin.bottom;
+            // Make dimensions responsive
+            const getResponsiveDimensions = () => {
+                const containerWidth = Math.min(window.innerWidth * 0.9, 2000);
+                const containerHeight = Math.min(window.innerHeight * 0.8, 1200);
+                
+                return {
+                    margin: {top: 30, right: 30, bottom: 70, left: 100},
+                    width: containerWidth - 130, // account for margins
+                    height: containerHeight - 100
+                };
+            };
+
+            let dimensions = getResponsiveDimensions();
+            let { margin, width, height } = dimensions;
+
+            // Update dimensions on window resize
+            window.addEventListener('resize', () => {
+                dimensions = getResponsiveDimensions();
+                margin = dimensions.margin;
+                width = dimensions.width;
+                height = dimensions.height;
+                
+                // Update SVG dimensions
+                svg.attr("width", width + margin.left + margin.right)
+                   .attr("height", height + margin.top + margin.bottom);
+                
+                // Update scales and redraw
+                x.range([0, width]);
+                y.range([height, 0]);
+                xAxis.attr("transform", `translate(0, ${height})`);
+                
+                genericChange();
+            });
 
             //append the svg object to the body of the page
             const svg = d3.select("#graphic-container")
@@ -229,9 +397,55 @@
             const yAxis = svg.append("g").attr("class", "y-axis");
 
             let tooltipSpan = document.createElement("div");
-            tooltipSpan.style.display = "none";
             tooltipSpan.setAttribute("class", "tooltip");
+            console.log(`max width: ${getResponsiveDimensions().width}`);
             document.body.appendChild(tooltipSpan);
+            tooltipSpan.style.maxWidth = `${Math.floor(getResponsiveDimensions().width)}px`;
+
+            onwheel = (event) => {
+                const scrollAmount = 100;
+                if(event.deltaY > 0){
+                    tooltipSpan.scrollLeft += scrollAmount;
+                }
+                else{
+                    tooltipSpan.scrollLeft -= scrollAmount;
+                }
+             }
+
+
+            // Improved tooltip positioning function
+            const positionTooltip = (mouseX, mouseY, tooltipElement) => {
+                const tooltipRect = tooltipElement.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                let left = mouseX + 20;
+                let top = mouseY - 40;
+                
+                // Check horizontal overflow
+                if (left + tooltipRect.width > viewportWidth) {
+                    left = mouseX - tooltipRect.width - 20;
+                }
+                
+                // If still overflowing (tooltip too wide), position at edge
+                if (left < 0) {
+                    left = 10;
+                }
+                if (left + tooltipRect.width > viewportWidth) {
+                    left = viewportWidth - tooltipRect.width - 10;
+                }
+                
+                // Check vertical overflow
+                if (top + tooltipRect.height > viewportHeight) {
+                    top = viewportHeight - tooltipRect.height - 10;
+                }
+                if (top < 0) {
+                    top = 10;
+                }
+                
+                tooltipElement.style.left = left + 'px';
+                tooltipElement.style.top = top + 'px';
+            };
 
             let tooltipImage = document.createElement("img");
             tooltipImage.onmouseout = () => {
@@ -332,46 +546,28 @@
                 .join("circle")
                 .on("mouseenter", (e, d) => {
 
-                    //original code
-                    // const x = e.clientX,
-                    //     y = e.clientY;
-                    // tooltipSpan.style.display ="block";
-                    // tooltipSpan.style.position = "fixed";
-                    // tooltipSpan.style.overflow = "hidden";
-                    // tooltipSpan.style.top = (y - 40) + 'px';
-                    // tooltipSpan.style.left = (x - 40) + 'px';
-                    // // tooltipSpan.style.backgroundColor = "black";
-                    // tooltipSpan.style.borderRadius = "3px";
-                    // tooltipSpan.style.padding = "5px";
-                    // tooltipImage.setAttribute("src", d.image);
-                    // console.log('moved');
-                    // for(const prop of infoOptions){
-                    //     const el = document.getElementById(`propId${prop}`);
-                    //     el.innerHTML = `${prop}: <b>${d[prop]}</b>`;
-                    // }
-
                     const sameX = data.filter(other => other[xVal] === d[xVal]);
                     const sameY = data.filter(other => other[yVal] === d[yVal]);
                     const allAtPoint = sameX.filter(other => sameY.includes(other));
 
-                    const x = e.clientX,
-                          y = e.clientY;
+                    const mouseX = e.clientX;
+                    const mouseY = e.clientY;
+                    
                     tooltipSpan.style.display = "flex";
                     tooltipSpan.style.position = "fixed";
-                    tooltipSpan.style.top = (y - 40) + 'px';
-                    tooltipSpan.style.left = (x + 20) + 'px'; // Adjust offset
 
                     // Clear previous content
                     tooltipSpan.innerHTML = "";
 
                     allAtPoint.forEach(item => {
                         const armorSummary = document.createElement('div');
-                        armorSummary.style.paddingRight = "15px";
-                        armorSummary.style.backgroundColor = "white";
-                        const itemImage = armorSummary.appendChild(tooltipImage.cloneNode(false));
-                        // const itemImage = tooltipSpan.appendChild(tooltipImage.cloneNode(false));
+                        armorSummary.className = 'armor-summary';
+                        
+                        const itemImage = document.createElement('img');
                         itemImage.setAttribute("src", item.image);
-                        itemImage.style.margin = "2px";
+                        itemImage.style.maxWidth = "200px";
+                        itemImage.style.maxHeight = "200px";
+                        armorSummary.appendChild(itemImage);
 
                         for (const prop of infoOptions) {
                             const el = document.createElement("p");
@@ -380,6 +576,11 @@
                         }
                         tooltipSpan.appendChild(armorSummary);
                     });
+
+                    // Position tooltip after content is added
+                    setTimeout(() => {
+                        positionTooltip(mouseX, mouseY, tooltipSpan);
+                    }, 0);
 
                 })
                 .on("mouseout", () => {
