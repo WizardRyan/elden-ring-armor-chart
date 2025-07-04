@@ -1,0 +1,269 @@
+html{
+    width: 100%;
+    height: 100%;
+}
+body{
+    width: 100%;
+    height: 100%;
+    margin:0;
+    padding:0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: rgb(255, 255, 255);
+    color: #333;
+}
+
+.main-wrapper{
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.tick{
+    font-size: 14px;
+}
+
+#graphic-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-bottom: 20px;
+    max-width: 95vw;
+    overflow: hidden;
+    position: relative;
+}
+
+#y-axis-label{
+    transform: rotate(270deg);
+    margin-right: 1500px;
+    padding: 0;
+    position: absolute;
+    font-weight: bold;
+}
+
+#x-axis-label{
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+svg{
+    margin-left: 0px;
+    max-width: 100%;
+    height: auto;
+    cursor: grab;
+}
+
+svg.panning {
+    cursor: grabbing;
+}
+
+#legend-div{
+    margin-top: 20px;
+}
+
+#legend-div span{
+    margin-right: 10px;
+}
+
+#input-div{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    max-width: 95vw;
+    box-sizing: border-box;
+}
+
+#zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#reset-zoom {
+    padding: 8px 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+
+#reset-zoom:hover {
+    background: #5a6fd8;
+}
+
+#zoom-info {
+    font-size: 12px;
+    color: #666;
+}
+
+.input-pair{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    min-width: 150px;
+}
+
+.input-pair span{
+    font-weight: 600;
+    color: #272727;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+select{
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+select:hover{
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+select:focus{
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#armor-type-div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    min-width: 150px;
+}
+
+#armor-type-div span{
+    font-weight: 600;
+    color: #272727;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tooltip{
+    position: fixed;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: auto;
+    display: none;
+    padding: 10px;
+    pointer-events: none;
+}
+
+.tooltip::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tooltip::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tooltip::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+}
+
+.tooltip::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.armor-summary{
+    padding: 10px;
+    margin: 5px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border-left: 4px solid #667eea;
+    min-width: 200px;
+}
+
+.armor-summary img{
+    display: block;
+    margin: 0 auto 10px auto;
+    border-radius: 4px;
+}
+
+.armor-summary p{
+    margin: 4px 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.tooltip-info{
+    display: flex;
+    flex-direction: column;
+    width: 100px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1400px) {
+    #graphic-container {
+        padding: 15px;
+    }
+    
+    svg {
+        width: 100%;
+        max-width: 1200px;
+    }
+}
+
+@media screen and (max-height: 900px) {
+    .main-wrapper {
+        min-height: auto;
+        padding: 10px;
+    }
+    
+    #graphic-container {
+        margin-bottom: 15px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #input-div {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .input-pair {
+        min-width: 200px;
+    }
+}
